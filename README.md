@@ -27,6 +27,10 @@ Home Assistant must reach the device on TCP 443. No cloud account, API key, or i
 
 The repository contains HACS metadata for future distribution, but **manual installation is the supported path while this repository is private**. Do not put a GitHub access token in Home Assistant configuration or in the repository.
 
+## Artwork fix in 0.1.1
+
+Artwork hosted by the WiiM now follows the device’s configured HTTPS certificate verification setting. External artwork keeps Home Assistant’s normal certificate checks. Image timeouts and connection failures return no image instead of failing the request. If upgrading from 0.1.0, download the update in HACS (or replace the integration directory), then restart Home Assistant.
+
 ## Use
 
 The device appears as a media player. Preset buttons can be enabled under the device's entities. Configure preset contents in WiiM Home first; unassigned slots may do nothing or return a device error.

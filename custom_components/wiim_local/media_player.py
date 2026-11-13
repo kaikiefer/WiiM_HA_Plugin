@@ -4,7 +4,9 @@
 """WiiM playback via the official local HTTP API."""
 
 import math
+from urllib.parse import urlsplit
 
+import aiohttp
 from homeassistant.components import media_source
 from homeassistant.components.media_player import (
     MediaPlayerDeviceClass,
@@ -120,6 +122,35 @@ class WiiMMediaPlayer(WiiMEntity, MediaPlayerEntity):
             if isinstance(url, str) and url.startswith(("http://", "https://"))
             else None
         )
+
+    async def _async_fetch_image(self, url):
+        """Apply the device TLS preference only to its own HTTPS artwork."""
+        client = self.coordinator.client
+        image = urlsplit(url)
+        device = urlsplit(client.url)
+        if (
+            image.scheme != "https"
+            or image.hostname != device.hostname
+            or (image.port or 443) != (device.port or 443)
+            or image.username is not None
+            or image.password is not None
+        ):
+            return await super()._async_fetch_image(url)
+        try:
+            async with client.session.get(
+                url,
+                ssl=client.verify_ssl,
+                allow_redirects=False,
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as response:
+                if response.status != 200:
+                    return None, None
+                mime = response.headers.get("Content-Type", "").split(";", 1)[0].strip()
+                if not mime.startswith("image/"):
+                    return None, None
+                return await response.read(), mime
+        except (aiohttp.ClientError, TimeoutError):
+            return None, None
 
     @property
     def media_content_type(self):

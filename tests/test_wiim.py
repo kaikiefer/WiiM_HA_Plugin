@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Kai Kiefer
 
 import json
+import ssl
 from unittest.mock import AsyncMock, MagicMock
 
 import aiohttp
@@ -248,3 +249,107 @@ async def test_mini_none_status_is_idle():
     co = coordinator()
     co.data["player"] = player
     assert WiiMMediaPlayer(co).state == MediaPlayerState.IDLE
+
+
+@pytest.mark.parametrize("verify", [True, False])
+async def test_device_artwork_honors_tls_setting(verify):
+    co = coordinator()
+    async with aiohttp.ClientSession() as session:
+        co.client = WiiMClient(session, "192.168.1.5", verify_ssl=verify)
+        with aioresponses() as mock:
+            url = "https://192.168.1.5/artwork.jpg"
+            mock.get(
+                url,
+                body=b"artwork",
+                headers={"Content-Type": "image/jpeg; charset=binary"},
+            )
+            assert await WiiMMediaPlayer(co)._async_fetch_image(url) == (
+                b"artwork",
+                "image/jpeg",
+            )
+            request = next(iter(mock.requests.values()))[0]
+            assert request.kwargs["ssl"] is verify
+            assert request.kwargs["allow_redirects"] is False
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://cdn.example/art.jpg",
+        "http://192.168.1.5/art.jpg",
+        "https://192.168.1.5:8443/art.jpg",
+    ],
+)
+async def test_external_artwork_keeps_homeassistant_fetcher(url):
+    from unittest.mock import patch
+
+    from homeassistant.components.media_player import MediaPlayerEntity
+
+    co = coordinator()
+    co.client.url = BASE
+    co.client.verify_ssl = False
+    with patch.object(
+        MediaPlayerEntity,
+        "_async_fetch_image",
+        new_callable=AsyncMock,
+        return_value=(b"image", "image/png"),
+    ) as fetch:
+        assert await WiiMMediaPlayer(co)._async_fetch_image(url) == (
+            b"image",
+            "image/png",
+        )
+        fetch.assert_awaited_once_with(url)
+    co.client.session.get.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "status,mime", [(302, "image/png"), (404, "image/png"), (200, "text/html")]
+)
+async def test_device_artwork_rejects_redirect_and_nonimage(status, mime):
+    co = coordinator()
+    async with aiohttp.ClientSession() as session:
+        co.client = WiiMClient(session, "192.168.1.5", False)
+        with aioresponses() as mock:
+            url = "https://192.168.1.5/artwork.jpg"
+            mock.get(
+                url,
+                status=status,
+                body=b"bad",
+                headers={"Content-Type": mime, "Location": "https://other.example/art"},
+            )
+            assert await WiiMMediaPlayer(co)._async_fetch_image(url) == (None, None)
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        TimeoutError(),
+        aiohttp.ClientConnectionError("TLS connection failed"),
+        aiohttp.ClientConnectorCertificateError(
+            MagicMock(), ssl.SSLCertVerificationError(1, "self-signed certificate")
+        ),
+    ],
+)
+async def test_device_artwork_connection_failure_is_handled(error):
+    co = coordinator()
+    async with aiohttp.ClientSession() as session:
+        co.client = WiiMClient(session, "192.168.1.5", False)
+        with aioresponses() as mock:
+            url = "https://192.168.1.5/artwork.jpg"
+            mock.get(url, exception=error)
+            assert await WiiMMediaPlayer(co)._async_fetch_image(url) == (None, None)
+
+
+async def test_explicit_default_https_port_uses_device_setting():
+    co = coordinator()
+    async with aiohttp.ClientSession() as session:
+        co.client = WiiMClient(session, "192.168.1.5", False)
+        with aioresponses() as mock:
+            url = "https://192.168.1.5:443/art.jpg"
+            mock.get(url, body=b"image", headers={"Content-Type": "image/jpeg"})
+            assert await WiiMMediaPlayer(co)._async_fetch_image(url) == (
+                b"image",
+                "image/jpeg",
+            )
+            request = next(iter(mock.requests.values()))[0]
+            assert request.kwargs["ssl"] is False
