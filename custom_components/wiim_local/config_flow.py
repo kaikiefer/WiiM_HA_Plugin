@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Kai Kiefer
+
 """Configure a WiiM by its local IP address."""
 
 import voluptuous as vol

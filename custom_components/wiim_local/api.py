@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Kai Kiefer
+
 """Small asynchronous client for the documented WiiM HTTPS API."""
 
 import asyncio

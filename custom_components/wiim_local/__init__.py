@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2026 Kai Kiefer
+
 """Local WiiM integration."""
 
 from homeassistant.const import CONF_HOST, Platform

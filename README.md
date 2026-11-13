@@ -64,3 +64,13 @@ python3.13 -m venv .venv
 Tests simulate WiiM HTTPS responses; they do not connect to or change a real speaker. See `tests/` for error handling, query encoding, input validation, config flow and entity checks. The GitHub Actions workflow runs the same checks.
 
 Remove through Settings → Devices & services, then delete the custom integration directory and restart if no longer needed.
+
+## License
+
+Copyright (C) 2026 Kai Kiefer.
+
+This project is licensed under the **GNU General Public License version 3 only** (`GPL-3.0-only`). See [LICENSE](LICENSE) for the complete terms.
+
+You may use, modify, and redistribute this integration. When distributing modified versions, you must preserve the required notices, provide corresponding source code as required by the GPL, and license the covered work under GPLv3. These permissions cannot be withdrawn for copies already received while the license conditions are followed.
+
+“Free” means freedom to use, modify, and share; GPLv3 allows charging for copies or services. Recipients retain the right to redistribute their copies, including at no charge. The software is provided without warranty, as described in the license.
