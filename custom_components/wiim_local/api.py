@@ -104,7 +104,7 @@ class WiiMClient:
 
     async def player(self):
         data = await self.request("getPlayerStatus", object_response=True)
-        if data.get("status") not in {"play", "pause", "stop", "loading"}:
+        if data.get("status") not in {"play", "pause", "stop", "loading", "none"}:
             raise WiiMError("Invalid player status")
         return data
 

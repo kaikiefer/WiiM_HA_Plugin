@@ -14,7 +14,7 @@ A custom Home Assistant integration for WiiM streamers, built around the [offici
 
 ## Install
 
-Requires Home Assistant **2025.3 or later**. Minimum-version validation uses 2025.3.4. Later releases and physical hardware still need validation.
+Requires Home Assistant **2025.3 or later**. Minimum-version validation uses 2025.3.4. Later Home Assistant releases still need validation.
 
 1. Clone or download this private repository using your GitHub account.
 2. Copy `custom_components/wiim_local` into `/config/custom_components/wiim_local` on your Home Assistant host. The resulting manifest path must be `/config/custom_components/wiim_local/manifest.json`.
@@ -46,7 +46,7 @@ Use your actual entity ID and a directly playable audio URL. Streaming-service p
 
 ## Compatibility and limits
 
-WiiM documents these as product-family commands and uses a Mini in its examples. Shared playback commands should work across compatible WiiM firmware, but **no physical model has been verified yet**. Model/firmware-specific functionality is not guaranteed. Only the documented common input names are exposed; HDMI, phono and other newer inputs need explicit API support before addition.
+WiiM documents these as product-family commands and uses a Mini in its examples. Shared playback commands should work across compatible WiiM firmware, with read-only device information, idle playback status, and preset retrieval verified on a physical Mini running firmware `Linkplay.4.6.833047`. Active playback controls and other models remain unverified. Model/firmware-specific functionality is not guaranteed. Only the documented common input names are exposed; HDMI, phono and other newer inputs need explicit API support before addition.
 
 Playback commands, track skipping, seeking and metadata availability depend on the current source. External sources such as AirPlay, Bluetooth and line input may ignore some controls or omit metadata. Metadata failure alone does not make the player unavailable. Missing metadata is cleared rather than retained from a previous track.
 

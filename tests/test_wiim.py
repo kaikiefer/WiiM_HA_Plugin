@@ -231,3 +231,17 @@ async def test_invalid_status_and_rejected_write():
                 await client.player()
             with pytest.raises(WiiMError):
                 await client.request("setPlayerCmd:pause")
+
+
+async def test_mini_none_status_is_idle():
+    """Physical Mini firmware reports none when nothing has played."""
+    async with aiohttp.ClientSession() as session:
+        with aioresponses() as mock:
+            mock.get(
+                BASE + "?command=getPlayerStatus",
+                payload={"status": "none", "mode": "0"},
+            )
+            player = await WiiMClient(session, "192.168.1.5").player()
+    co = coordinator()
+    co.data["player"] = player
+    assert WiiMMediaPlayer(co).state == MediaPlayerState.IDLE

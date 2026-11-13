@@ -64,6 +64,7 @@ class WiiMMediaPlayer(WiiMEntity, MediaPlayerEntity):
             "play": MediaPlayerState.PLAYING,
             "pause": MediaPlayerState.PAUSED,
             "stop": MediaPlayerState.IDLE,
+            "none": MediaPlayerState.IDLE,
             "loading": MediaPlayerState.BUFFERING,
         }.get(self.player.get("status"))
 
