@@ -1,0 +1,22 @@
+{
+  "title": "WiiM Local",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect your WiiM",
+        "description": "Enter your WiiM's local IP or hostname. Certificate verification is enabled by default. If your device uses a self-signed certificate, you may disable verification for this device on your trusted LAN.",
+        "data": {
+          "host": "IP address or hostname",
+          "verify_ssl": "Verify HTTPS certificate"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect. Check the address, network access, and HTTPS certificate setting.",
+      "invalid_host": "Enter only an IP address or hostname, without a URL or port."
+    },
+    "abort": {
+      "already_configured": "This WiiM is already configured; its connection settings have been updated."
+    }
+  }
+}
